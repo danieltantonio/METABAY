@@ -1,91 +1,100 @@
 import React, { useState, useEffect } from "react";
-import SimpleStorageContract from "./contracts/TestStore.json";
+import StoreContract from "./contracts/Store.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
 
+const initForm = {
+  itemName: '',
+  price: 0,
+  quantity: 0
+}
+
 function App(props) {
-  const [storageValState, setStorageVal] = useState(0);
-  const [web3State, setWeb3] = useState(null);
-  const [accountsState, setAccounts] = useState(null);
-  const [contractState, setContract] = useState(null);
-  const [ownerAddr, setOwnerAddr] = useState('');
-  const [userAddr, setUserAddr] = useState('');
-  const [sendETHAmount, setsendETHAmount] = useState(0);
+  const [web3, setWeb3] = useState(null);
+  const [owner, setOwner] = useState(null);
+  const [user, setUser] = useState(null);
+  const [accounts, setAccounts] = useState(null);
+  const [Store, setStore] = useState(null);
+  const [form, setForm] = useState(initForm);
 
   useEffect(() => {
     (async () => {
       try {
-        const web3 = await getWeb3();
-        const accounts = await web3.eth.getAccounts();
-        const networkId = await web3.eth.net.getId();
-        const deployedNetwork = SimpleStorageContract.networks[networkId];
-        const instance = new web3.eth.Contract(
-          SimpleStorageContract.abi,
-          deployedNetwork && deployedNetwork.address
-        );
+        const web3API = await getWeb3();
+        const netID = await web3API.eth.net.getId();
+        
+        const deployedStore = StoreContract.networks[netID];
   
-        setWeb3(web3);
-        setAccounts(accounts);
-        setContract(instance);
-
-        console.log(accounts);
+        setStore(new web3API.eth.Contract(
+          StoreContract.abi,
+          deployedStore && deployedStore.address
+        ));
+  
+        setWeb3(web3API);
+        setAccounts(await web3API.eth.getAccounts());
       } catch(err) {
-        alert('Failed to load web3, accounts, or contract. Check console for details.');
+        alert('Failed to loab web3.');
         console.log(err);
       }
     })();
   }, []);
 
   useEffect(() => {
-    if(contractState) {
-      console.log(contractState.methods.sendMoney());
-      contractState.methods.showOwner().call()
-      .then(res => {
-        setOwnerAddr(res);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    (async () => {
+      if(web3) {
+        try {
+          const getOwner = await Store.methods.returnOwner().call();
+          setOwner(getOwner);
+          setUser(web3.currentProvider.selectedAddress);
+        } catch(err) {
+          console.log(err);
+        }
+      }
+    })();
+  }, [web3]);
 
-      web3State.eth.getAccounts()
-      .then(res => {
-        setUserAddr(res[0]);
-      })
-      .catch(err => {
-        console.log(err);
-      })
+  const changeForm = e => {
+    const { name, value, type } = e.target;
+
+    if(type !== 'number') {
+      setForm({ ...form, [name]: value }); 
+    } else {
+      const numVal = parseInt(value);
+      setForm({ ...form, [name]: numVal });
     }
-  }, [contractState]);
+  }
 
-  const sendETH = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    // This method works
-    // web3State.eth.sendTransaction({ to: ownerAddr, from: userAddr, value: web3State.utils.toWei(String(sendETHAmount), 'ether') });
+    const { itemName, price, quantity } = form;
+    const res = await Store.methods.createItem(itemName, price, quantity).send({ from: user });
 
-    // See if I can get the solidity method to work
-    contractState.methods.sendMoney().send({ from: userAddr, value: web3State.utils.toWei(String(sendETHAmount), 'ether') });
+    console.log(res);
   }
 
-  const onChangeETHAmnt = e => {
-    setsendETHAmount(e.target.value);
-  }
+  window.ethereum.on('accountsChanged', accs => {
+    setUser(accs[0]);
+  });
 
   return (
     <div>
-      { 
-        ownerAddr 
-        && 
-        <div>
-          <p>Owner Wallet Address: {ownerAddr}</p>
-          <p>Your Wallet Address: {userAddr}</p>
-        </div>
-      }
       <img src="./1635911403779.jpg" />
-      <form onSubmit={sendETH}>
-        <input name="ethAmount" type="text" onChange={onChangeETHAmnt} />
-        <input type="submit" />
-      </form>
+      {
+        web3 
+        &&
+        <div>
+          <form onSubmit={handleSubmit}>
+            <p>Name</p>
+            <input type="text" name="itemName" value={form.itemName} onChange={changeForm}/>
+            <p>Cost</p>
+            <input type="number" name="price" value={form.price} onChange={changeForm}/>
+            <p>Quantity</p>
+            <input type="number" name="quantity" value={form.quantity} onChange={changeForm}/>
+            <input type="submit" />
+          </form>
+        </div> 
+      }
     </div>
   )
 }

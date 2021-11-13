@@ -2,9 +2,12 @@ pragma solidity ^0.8.7;
 import './Ownable.sol';
 import './Item.sol';
 
-contract TestStore is Ownable {
+contract Store is Ownable {
     uint index;
-    enum PaymentStatus{ Purchased, InTransit, Delivered }
+    enum SupplyStatus{ Purchased, InTransit, Delivered }
+
+    event ItemEvent(uint _itemIndex, address _itemAddress);
+    event PaymentEvent(uint _status);
 
     struct S_Payment {
         address _item;
@@ -12,7 +15,7 @@ contract TestStore is Ownable {
         uint _value;
         uint _quantity;
         uint _timePurchased;
-        TestStore.PaymentStatus _status;
+        Store.SupplyStatus _status;
     }
 
     struct S_Item {
@@ -38,6 +41,7 @@ contract TestStore is Ownable {
         items[index]._timeCreated = block.timestamp;
         items[index]._item = item;
 
+        emit ItemEvent(index, address(item));
         index++;
     }
 
@@ -62,7 +66,7 @@ contract TestStore is Ownable {
         items[_itemIndex]._payments[purchaseIndex]._value = msg.value;
         items[_itemIndex]._payments[purchaseIndex]._quantity = _quantity;
         items[_itemIndex]._payments[purchaseIndex]._timePurchased = block.timestamp;
-        items[_itemIndex]._payments[purchaseIndex]._status = PaymentStatus.Purchased;
+        items[_itemIndex]._payments[purchaseIndex]._status = SupplyStatus.Purchased;
 
         items[_itemIndex]._purchases++;
         items[_itemIndex]._quantity -= _quantity;
@@ -73,5 +77,9 @@ contract TestStore is Ownable {
         items[_index]._itemOwner = _itemOwner;
         items[_index]._price = _price;
         items[_index]._quantity = _quantity;
-    } 
+    }
+
+    function returnOwner() public view returns(address) {
+        return owner;
+    }
 }

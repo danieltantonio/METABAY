@@ -1,5 +1,5 @@
 pragma solidity ^0.8.7;
-import './TestStore.sol';
+import './Store.sol';
 
 contract Item {
     uint index;
@@ -13,6 +13,7 @@ contract Item {
         name = _name;
         price = _price;
         index = _index;
+        parent = _parent;
         itemOwner = _itemOwner;
         timeCreated = _timeCreated;
     }
