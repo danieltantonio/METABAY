@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import StoreContract from "./contracts/Store.json";
 import getWeb3 from "./getWeb3";
+import { Routes, Route, NavLink } from 'react-router-dom';
 
 import "./App.css";
 
-const initForm = {
-  itemName: '',
-  price: 0,
-  quantity: 0
-}
+import Home from './Components/Home';
+import CreateItem from './Components/CreateItem';
+import Item from './Components/Item';
 
 function App(props) {
   const [web3, setWeb3] = useState(null);
@@ -16,7 +15,7 @@ function App(props) {
   const [user, setUser] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [Store, setStore] = useState(null);
-  const [form, setForm] = useState(initForm);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -45,8 +44,9 @@ function App(props) {
       if(web3) {
         try {
           const getOwner = await Store.methods.returnOwner().call();
+          const getUser = web3.currentProvider.selectedAddress;
           setOwner(getOwner);
-          setUser(web3.currentProvider.selectedAddress);
+          setUser(getUser);
         } catch(err) {
           console.log(err);
         }
@@ -54,23 +54,17 @@ function App(props) {
     })();
   }, [web3]);
 
-  const changeForm = e => {
-    const { name, value, type } = e.target;
+  const createItem = async data => {
+    try {
+      const { name, price, quantity } = data;
+      const newItem = await Store.methods.createItem(name, web3.utils.toWei(price, 'ether'), quantity).send({ from: user });
+      const itemAddr = newItem.events.ItemEvent.returnValues._itemAddress;
 
-    if(type !== 'number') {
-      setForm({ ...form, [name]: value }); 
-    } else {
-      const numVal = parseInt(value);
-      setForm({ ...form, [name]: numVal });
+      setItems([...items, itemAddr]);
+    } catch(err) {
+      alert('There was an error creating new item. Please try again or read console.');
+      console.log(err);
     }
-  }
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    const { itemName, price, quantity } = form;
-    const res = await Store.methods.createItem(itemName, price, quantity).send({ from: user });
-
-    console.log(res);
   }
 
   window.ethereum.on('accountsChanged', accs => {
@@ -78,23 +72,17 @@ function App(props) {
   });
 
   return (
-    <div>
-      <img src="./1635911403779.jpg" />
-      {
-        web3 
-        &&
-        <div>
-          <form onSubmit={handleSubmit}>
-            <p>Name</p>
-            <input type="text" name="itemName" value={form.itemName} onChange={changeForm}/>
-            <p>Cost</p>
-            <input type="number" name="price" value={form.price} onChange={changeForm}/>
-            <p>Quantity</p>
-            <input type="number" name="quantity" value={form.quantity} onChange={changeForm}/>
-            <input type="submit" />
-          </form>
-        </div> 
-      }
+    <div className="App">
+      <div>
+        User: {user}
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/new-item">Create Item For Sale</NavLink>
+      </div>
+      <Routes>
+        <Route exact path="/" element={<Home items={items} />} />
+        <Route path="/new-item" element={<CreateItem createItem={createItem} />} />
+        <Route path="/item/:id" element={<Item web3={web3} user={user} />} />
+      </Routes>
     </div>
   )
 }

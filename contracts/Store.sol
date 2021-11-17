@@ -32,7 +32,7 @@ contract Store is Ownable {
     mapping(uint => S_Item) public items;
 
     function createItem(string memory _name, uint _price, uint _quantity) public {
-        Item item = new Item(_name, _price, msg.sender, block.timestamp, index, address(this));
+        Item item = new Item(_name, _price, msg.sender, block.timestamp, index, address(this), _quantity);
 
         items[index]._identifier = _name;
         items[index]._itemOwner = msg.sender;
