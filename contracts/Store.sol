@@ -29,7 +29,13 @@ contract Store is Ownable {
         mapping(uint => S_Payment) _payments;
     }
 
+    struct S_Profile {
+        uint _itemsOwned;
+        mapping(uint => address) _items;
+    }
+
     mapping(uint => S_Item) public items;
+    mapping(address => S_Profile) public profiles;
 
     function createItem(string memory _name, uint _price, uint _quantity) public {
         Item item = new Item(_name, _price, msg.sender, block.timestamp, index, address(this), _quantity);
@@ -40,6 +46,9 @@ contract Store is Ownable {
         items[index]._quantity = _quantity;
         items[index]._timeCreated = block.timestamp;
         items[index]._item = item;
+
+        profiles[msg.sender]._items[profiles[msg.sender]._itemsOwned] = address(item);
+        profiles[msg.sender]._itemsOwned++;
 
         emit ItemEvent(index, address(item));
         index++;
@@ -81,5 +90,13 @@ contract Store is Ownable {
 
     function returnOwner() public view returns(address) {
         return owner;
+    }
+
+    function returnItemsOwnedByAddress(address _itemOwner, uint _index) public view returns(address) {
+        return profiles[_itemOwner]._items[_index];
+    }
+
+    function returnItemsOwnedTotal(address _itemOwner) public view returns(uint) {
+        return profiles[_itemOwner]._itemsOwned;
     }
 }

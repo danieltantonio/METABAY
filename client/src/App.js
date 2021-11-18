@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import StoreContract from "./contracts/Store.json";
 import getWeb3 from "./getWeb3";
-import { Routes, Route, NavLink } from 'react-router-dom';
+import { Routes, Route, NavLink, Link } from 'react-router-dom';
 
 import "./App.css";
 
 import Home from './Components/Home';
 import CreateItem from './Components/CreateItem';
 import Item from './Components/Item';
+import Profile from './Components/Profile';
 
 function App(props) {
   const [web3, setWeb3] = useState(null);
@@ -74,7 +75,7 @@ function App(props) {
   return (
     <div className="App">
       <div>
-        User: {user}
+        User: <Link to={`/profile/${user}`}>{user}</Link>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/new-item">Create Item For Sale</NavLink>
       </div>
@@ -82,6 +83,7 @@ function App(props) {
         <Route exact path="/" element={<Home items={items} />} />
         <Route path="/new-item" element={<CreateItem createItem={createItem} />} />
         <Route path="/item/:id" element={<Item web3={web3} user={user} />} />
+        <Route path='/profile/:address' element={<Profile web3={web3} store={Store} user={user} />} />
       </Routes>
     </div>
   )
