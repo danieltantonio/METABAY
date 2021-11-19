@@ -23,7 +23,7 @@ contract Item {
     function pay(uint _quantity) public payable {
         require(_quantity >= 1, "Need 1 or more to purchase.");
         require(_quantity <= quantity, "Not enough in stock.");
-        (bool parentSuccess, ) = parent.call{ value: msg.value }(abi.encodeWithSignature('triggerPayment(uint256,uint256)', index, _quantity));
+        (bool parentSuccess, ) = parent.call{ value: msg.value }(abi.encodeWithSignature('triggerPayment(uint256,uint256,address)', index, _quantity, msg.sender));
 
         quantity -= _quantity;
     }

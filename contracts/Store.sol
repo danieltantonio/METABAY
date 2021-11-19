@@ -7,7 +7,7 @@ contract Store is Ownable {
     enum SupplyStatus{ Purchased, InTransit, Delivered }
 
     event ItemEvent(uint _itemIndex, address _itemAddress);
-    event PaymentEvent(uint _status);
+    event PaymentEvent(uint _itemIndex, address _buyerAddr, uint _status);
 
     struct S_Payment {
         address _item;
@@ -36,6 +36,7 @@ contract Store is Ownable {
 
     mapping(uint => S_Item) public items;
     mapping(address => S_Profile) public profiles;
+    mapping(address => uint) public itemIndex;
 
     function createItem(string memory _name, uint _price, uint _quantity) public {
         Item item = new Item(_name, _price, msg.sender, block.timestamp, index, address(this), _quantity);
@@ -50,11 +51,13 @@ contract Store is Ownable {
         profiles[msg.sender]._items[profiles[msg.sender]._itemsOwned] = address(item);
         profiles[msg.sender]._itemsOwned++;
 
+        itemIndex[address(item)] = index;
+
         emit ItemEvent(index, address(item));
         index++;
     }
 
-    function triggerPayment(uint _itemIndex, uint _quantity) public payable {
+    function triggerPayment(uint _itemIndex, uint _quantity, address _buyer) public payable {
         require(msg.sender == address(items[_itemIndex]._item), "Function not called from Item Contract.");
         require(_quantity >= 1, "Need 1 or more to purchase.");
         require(_quantity <= items[_itemIndex]._quantity, "Not enough in stock.");
@@ -71,7 +74,7 @@ contract Store is Ownable {
         require(ownerSuccess, "Payment did not send successfully. Please try again.");
 
         items[_itemIndex]._payments[purchaseIndex]._item = address(items[_itemIndex]._item);
-        items[_itemIndex]._payments[purchaseIndex]._buyer = msg.sender;
+        items[_itemIndex]._payments[purchaseIndex]._buyer = _buyer;
         items[_itemIndex]._payments[purchaseIndex]._value = msg.value;
         items[_itemIndex]._payments[purchaseIndex]._quantity = _quantity;
         items[_itemIndex]._payments[purchaseIndex]._timePurchased = block.timestamp;
@@ -79,6 +82,8 @@ contract Store is Ownable {
 
         items[_itemIndex]._purchases++;
         items[_itemIndex]._quantity -= _quantity;
+
+        emit PaymentEvent(_itemIndex, _buyer, uint(items[_itemIndex]._payments[purchaseIndex]._status));
     }
 
     function editItem(uint _index, address _itemOwner, uint _price, uint _quantity) public {
@@ -98,5 +103,21 @@ contract Store is Ownable {
 
     function returnItemsOwnedTotal(address _itemOwner) public view returns(uint) {
         return profiles[_itemOwner]._itemsOwned;
+    }
+
+    function returnItemIndex(address _item) public view returns(uint) {
+        return itemIndex[_item];
+    }
+
+    function returnItemPurchases(uint _index) public view returns(uint) {
+        return items[_index]._purchases;
+    }
+
+    function returnOrderStatus(uint _itemIndex, uint _transactionIndex) public view returns(uint) {
+        return uint(items[_itemIndex]._payments[_transactionIndex]._status);
+    }
+    
+    function returnBuyerAddress(uint _itemIndex, uint _transactionIndex) public view returns(address) {
+        return items[_itemIndex]._payments[_transactionIndex]._buyer;
     }
 }

@@ -9,6 +9,7 @@ import Home from './Components/Home';
 import CreateItem from './Components/CreateItem';
 import Item from './Components/Item';
 import Profile from './Components/Profile';
+import Orders from './Components/Orders';
 
 function App(props) {
   const [web3, setWeb3] = useState(null);
@@ -78,12 +79,14 @@ function App(props) {
         User: <Link to={`/profile/${user}`}>{user}</Link>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/new-item">Create Item For Sale</NavLink>
+        <NavLink to="/orders">Orders</NavLink>
       </div>
       <Routes>
         <Route exact path="/" element={<Home items={items} />} />
         <Route path="/new-item" element={<CreateItem createItem={createItem} />} />
         <Route path="/item/:id" element={<Item web3={web3} user={user} />} />
         <Route path='/profile/:address' element={<Profile web3={web3} store={Store} user={user} />} />
+        <Route path='/orders' element={<Orders web3={web3} store={Store} user={user} />} />
       </Routes>
     </div>
   )
