@@ -120,4 +120,12 @@ contract Store is Ownable {
     function returnBuyerAddress(uint _itemIndex, uint _transactionIndex) public view returns(address) {
         return items[_itemIndex]._payments[_transactionIndex]._buyer;
     }
+
+    function returnIndex() public view returns(uint) {
+        return index;
+    }
+
+    function returnItemAtIndex(uint _index) public view returns(address) {
+        return address(items[_index]._item);
+    }
 }

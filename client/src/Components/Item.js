@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import ItemContract from '../contracts/Item.json';
 
 const initItemInfo = {
@@ -80,4 +82,11 @@ function Item(props) {
     )
 }
 
-export default Item;
+const mapStateToProps = state => {
+    return {
+        web3: state.fetchWeb3.web3,
+        store: state.fetchStore.store,
+    }
+}
+
+export default connect(mapStateToProps, { })(Item);

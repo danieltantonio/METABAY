@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 function Profile(props) {
     const { web3, store, user } = props;
@@ -47,4 +48,11 @@ function Profile(props) {
     )
 }
 
-export default Profile;
+const mapStateToProps = state => {
+    return {
+        web3: state.fetchWeb3.web3,
+        store: state.fetchStore.store
+    }
+}
+
+export default connect(mapStateToProps, {})(Profile);

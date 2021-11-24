@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 
 function Orders(props) {
     const { web3, store, user } = props;
@@ -53,13 +54,13 @@ function Orders(props) {
     const returnOrders = items => {
         return Object.keys(items).map(itm => Object.keys(items[itm]).map(buyer => {
             return (
-                <div>
+                <div className="item">
                     <p>Item: {itm}</p>
                     <p>Buyer: {buyer}</p>
                     <p>Status: {items[itm][buyer]}</p>
                 </div>
             )
-        }))
+        }));
     }
 
     return(
@@ -70,7 +71,7 @@ function Orders(props) {
                 ?
                 <div>There are no on-going orders</div>
                 :
-                <div>
+                <div className="items">
                     {
                         returnOrders(orders)
                     }
@@ -80,4 +81,11 @@ function Orders(props) {
     )
 }
 
-export default Orders;
+const mapStateToProps = state => {
+    return {
+        web3: state.fetchWeb3.web3,
+        store: state.fetchStore.store
+    }
+}
+
+export default connect(mapStateToProps, {})(Orders);

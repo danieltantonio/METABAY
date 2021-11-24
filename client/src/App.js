@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import StoreContract from "./contracts/Store.json";
-import getWeb3 from "./getWeb3";
-import { Routes, Route, NavLink, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { Route, Routes, NavLink, Link } from 'react-router-dom';
 
-import "./App.css";
+import { fetchWeb3, fetchStore, fetchAllItems, addNewItem } from './store/actions';
 
 import Home from './Components/Home';
 import CreateItem from './Components/CreateItem';
@@ -12,84 +11,65 @@ import Profile from './Components/Profile';
 import Orders from './Components/Orders';
 
 function App(props) {
-  const [web3, setWeb3] = useState(null);
-  const [owner, setOwner] = useState(null);
+  const { fetchWeb3, fetchStore, fetchAllItems, addNewItem, web3, store, items } = props;
   const [user, setUser] = useState(null);
-  const [accounts, setAccounts] = useState(null);
-  const [Store, setStore] = useState(null);
-  const [items, setItems] = useState([]);
-
+  
   useEffect(() => {
-    (async () => {
-      try {
-        const web3API = await getWeb3();
-        const netID = await web3API.eth.net.getId();
-        
-        const deployedStore = StoreContract.networks[netID];
-  
-        setStore(new web3API.eth.Contract(
-          StoreContract.abi,
-          deployedStore && deployedStore.address
-        ));
-  
-        setWeb3(web3API);
-        setAccounts(await web3API.eth.getAccounts());
-      } catch(err) {
-        alert('Failed to loab web3.');
-        console.log(err);
-      }
-    })();
+    fetchWeb3();
   }, []);
 
   useEffect(() => {
-    (async () => {
-      if(web3) {
-        try {
-          const getOwner = await Store.methods.returnOwner().call();
-          const getUser = web3.currentProvider.selectedAddress;
-          setOwner(getOwner);
-          setUser(getUser);
-        } catch(err) {
-          console.log(err);
-        }
-      }
-    })();
+    if(web3) fetchStore(web3);
   }, [web3]);
 
-  const createItem = async data => {
-    try {
-      const { name, price, quantity } = data;
-      const newItem = await Store.methods.createItem(name, web3.utils.toWei(price, 'ether'), quantity).send({ from: user });
-      const itemAddr = newItem.events.ItemEvent.returnValues._itemAddress;
+  useEffect(() => {
+    if(store) fetchAllItems(store);
+  }, [store]);
 
-      setItems([...items, itemAddr]);
-    } catch(err) {
-      alert('There was an error creating new item. Please try again or read console.');
-      console.log(err);
+  useEffect(() => {
+    if(web3) {
+      (async () => {
+        const getUser = web3.currentProvider.selectedAddress;
+        setUser(getUser);
+      })();
+    }
+  }, [web3]);
+
+  const createItem = item => {
+    if(store && user && web3) {
+      const { name, price, quantity } = item;
+      const priceToWei = web3.utils.toWei(price, 'ether');
+      const newItem = { name, price: priceToWei, quantity };
+
+      addNewItem(store, user, newItem);
     }
   }
 
-  window.ethereum.on('accountsChanged', accs => {
-    setUser(accs[0]);
-  });
-
   return (
-    <div className="App">
+    <div>
       <div>
-        User: <Link to={`/profile/${user}`}>{user}</Link>
+        User: <Link to={`/${user}`}>{user}</Link>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/new-item">Create Item For Sale</NavLink>
         <NavLink to="/orders">Orders</NavLink>
       </div>
       <Routes>
-        <Route exact path="/" element={<Home items={items} />} />
-        <Route path="/new-item" element={<CreateItem createItem={createItem} />} />
-        <Route path="/item/:id" element={<Item web3={web3} user={user} />} />
-        <Route path='/profile/:address' element={<Profile web3={web3} store={Store} user={user} />} />
-        <Route path='/orders' element={<Orders web3={web3} store={Store} user={user} />} />
+        <Route exact path="/" element={ <Home items={items} /> } />
+        <Route exact path="/:address" element={ <Profile user={user} /> } />
+        <Route path="/new-item" element={ <CreateItem createItem={createItem} /> } />
+        <Route path="/item/:id" element={ <Item user={user} /> } />
+        <Route path="/Orders" element={ <Orders user={user} /> } />
       </Routes>
     </div>
   )
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    web3: state.fetchWeb3.web3,
+    store: state.fetchStore.store,
+    items: state.handleItems.items
+  }
+}
+
+export default connect(mapStateToProps, { fetchWeb3, fetchStore, fetchAllItems, addNewItem })(App);
