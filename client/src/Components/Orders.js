@@ -20,10 +20,12 @@ function Orders(props) {
                         const itemIndex = parseInt(await store.methods.returnItemIndex(itemAddr).call());
                         const totalPurchases = parseInt(await store.methods.returnItemPurchases(itemIndex).call());
 
+                        // If anyone has purchased item
                         if(totalPurchases) {
                             for(let purchaseIndex = 0; purchaseIndex < totalPurchases; purchaseIndex++) {
                                 const buyer = await store.methods.returnBuyerAddress(itemIndex, purchaseIndex).call();
                                 const statusNum = parseInt(await store.methods.returnOrderStatus(itemIndex, purchaseIndex).call());
+                                const orderIndex = await store.methods.returnPaymentIndex(itemIndex, purchaseIndex).call();
                                 let status = '';
 
                                 switch(statusNum) {
@@ -39,8 +41,8 @@ function Orders(props) {
                                     default:
                                         status = 'Purchased';
                                 }
-
-                                itemInfo[itemAddr] = { ...itemInfo[itemAddr], [buyer]: status };
+                                
+                                itemInfo[itemAddr] ? itemInfo[itemAddr].push({ buyer, status, orderIndex })  : itemInfo[itemAddr] = [{buyer, status, orderIndex}];
                             }
 
                             setOrders({ ...orders, ...itemInfo });
@@ -52,12 +54,11 @@ function Orders(props) {
     }, [user]);
 
     const returnOrders = items => {
-        return Object.keys(items).map(itm => Object.keys(items[itm]).map(buyer => {
+        return Object.keys(items).map(itm => items[itm].map(ordr => {
             return (
-                <div className="item">
+                <div key={ordr.orderIndex}>
                     <p>Item: {itm}</p>
-                    <p>Buyer: {buyer}</p>
-                    <p>Status: {items[itm][buyer]}</p>
+                    <p>Customer: {ordr.buyer}</p>
                 </div>
             )
         }));

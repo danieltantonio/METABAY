@@ -26,7 +26,7 @@ export const handleItems = (state = initState, action) => {
             }
         case ADD_NEW_ITEM:
             return {
-                ...initState,
+                ...state,
                 isLoading: true
             }
         case ADD_NEW_ITEM_SUCC:

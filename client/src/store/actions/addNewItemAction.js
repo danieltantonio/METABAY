@@ -8,9 +8,9 @@ export const addNewItem = (store, user, item) => {
             try {
                 dispatch({ type: ADD_NEW_ITEM });
                 const newItem = await store.methods.createItem(item.name, item.price, item.quantity).send({ from: user });
-                const itemAddr = newItem.events.ItemEvent.returnValues._itemAddress;
+                const address = newItem.events.ItemEvent.returnValues._itemAddress;
 
-                dispatch({ type: ADD_NEW_ITEM_SUCC, payload: itemAddr });
+                dispatch({ type: ADD_NEW_ITEM_SUCC, payload: address });
             } catch(err) {
                 dispatch({ type: ADD_NEW_ITEM_ERR, payload: err });
             }

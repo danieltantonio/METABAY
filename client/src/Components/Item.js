@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 import ItemContract from '../contracts/Item.json';
 
@@ -10,12 +11,25 @@ const initItemInfo = {
     quantity: 0
 }
 
+const initForm = {
+    firstName: '',
+    lastName: '',
+    address: '',
+    apartment: null,
+    city: '',
+    country: '',
+    state: '',
+    zip: '',
+    phone: null,
+    quantity: 0,
+}
+
 function Item(props) {
-    const { web3, user } = props;
+    const { web3, user, store } = props;
     const { id } = useParams();
     const [Item, setItem] = useState(null);
     const [itemInfo, setItemInfo] = useState(initItemInfo);
-    const [quantity, setQuantity] = useState(0);
+    const [form, setForm] = useState(initForm);
 
     useEffect(() => {
         (async () => {
@@ -49,21 +63,39 @@ function Item(props) {
         }
     }, [Item]);
 
-    const changeQuant = e => {
-        const { value } = e.target;
-        setQuantity(value);
-    }
-
     const orderNow = async e => {
         e.preventDefault();
         try {
-            await Item.methods.pay(quantity).send({ from: user, value: (quantity * itemInfo.price) });
-            const newQuantity = await Item.methods.returnQuantity().call();
+            const { quantity } = form;
+            const { price } = itemInfo;
 
-            setItemInfo({ ...itemInfo, quantity: newQuantity });
+            const itemIndex = parseInt(await store.methods.returnItemIndex(id).call());
+            const totalPurchases = await store.methods.returnItemPurchases(itemIndex).call();
+
+            const order = {
+                orderIndex: totalPurchases,
+                itemAddress: id,
+                customerWalletAddress: user,
+                orderStatus: 'Ordered',
+                ...form
+            }
+
+            await Item.methods.pay(quantity).send({ value: (price * quantity), from: user });
+            await axios.post('http://localhost:5000/order', order);
+
+            alert('Your order has been made, thank you!');
         } catch(err) {
-            alert('There was an error getting the item. Read the console.');
+            alert('ERROR CHECK CONSOLE');
             console.log(err);
+        } 
+    }
+
+    const changeForm = e => {
+        const { name, value, type } = e.target;
+        if(type === "text") {
+            setForm({ ...form, [name]: value });
+        } else {
+            setForm({ ...form, [name]: parseInt(value) });
         }
     }
 
@@ -76,8 +108,19 @@ function Item(props) {
             <h2>{itemInfo.name}</h2>
             <p>Price: ETH {web3.utils.fromWei(itemInfo.price, 'ether')}</p>
             <p>Quantity: {itemInfo.quantity}</p>
-            <input placeholder="quantity" value={quantity} onChange={changeQuant} />
-            <button onClick={orderNow}>Order Now</button> 
+            <form>
+                <input type="text" onChange={changeForm} value={form.firstName} name="firstName" placeholder="First Name" />
+                <input type="text" onChange={changeForm} value={form.lastName} name="lastName" placeholder="Last Name" />
+                <input type="text" onChange={changeForm} value={form.address} name="address" placeholder="Address" />
+                <input type="text" onChange={changeForm} value={form.apartment} name="apartment" placeholder="Apartment, suite, etc. (optional)" />
+                <input type="text" onChange={changeForm} value={form.city} name="city" placeholder="City" />
+                <input type="text" onChange={changeForm} value={form.country} name="country" placeholder="Country" />
+                <input type="text" onChange={changeForm} value={form.state} name="state" placeholder="State" />
+                <input type="text" onChange={changeForm} value={form.zip} name="zip" placeholder="Zip Code" />
+                <input type="text" onChange={changeForm} value={form.phone} name="phone" placeholder="Phone" />
+                <input type="number" onChange={changeForm} value={form.quantity} name="quantity" placeholder="Quantity" />
+                <button onClick={orderNow}>Order Now</button> 
+            </form>
         </div>
     )
 }

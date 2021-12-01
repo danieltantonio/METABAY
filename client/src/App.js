@@ -35,6 +35,10 @@ function App(props) {
     }
   }, [web3]);
 
+  window.ethereum.on('accountsChanged', accs => {
+    setUser(accs[0]);
+  });
+
   const createItem = item => {
     if(store && user && web3) {
       const { name, price, quantity } = item;

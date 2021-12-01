@@ -12,6 +12,7 @@ contract Store is Ownable {
     struct S_Payment {
         address _item;
         address _buyer;
+        uint _index;
         uint _value;
         uint _quantity;
         uint _timePurchased;
@@ -79,6 +80,7 @@ contract Store is Ownable {
         items[_itemIndex]._payments[purchaseIndex]._quantity = _quantity;
         items[_itemIndex]._payments[purchaseIndex]._timePurchased = block.timestamp;
         items[_itemIndex]._payments[purchaseIndex]._status = SupplyStatus.Purchased;
+        items[_itemIndex]._payments[purchaseIndex]._index = purchaseIndex;
 
         items[_itemIndex]._purchases++;
         items[_itemIndex]._quantity -= _quantity;
@@ -127,5 +129,9 @@ contract Store is Ownable {
 
     function returnItemAtIndex(uint _index) public view returns(address) {
         return address(items[_index]._item);
+    }
+
+    function returnPaymentIndex(uint _itemIndex, uint _purchaseIndex) public view returns(uint) {
+        return items[_itemIndex]._payments[_purchaseIndex]._index;
     }
 }
