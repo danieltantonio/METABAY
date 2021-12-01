@@ -1,6 +1,10 @@
 const { Schema } = require('mongoose');
 
 const orderSchema = new Schema({
+    orderIndex: {
+        type: String,
+        required: true
+    },
     itemAddress: {
         type: String,
         required: true
