@@ -4,8 +4,19 @@
 
     const Order = require('../config/db/models/order');
 
-    router.get('/', (req,res) => {
-        res.status(200).json({ msg: "Order router works" });
+    router.get('/', async (req,res) => {
+        if(req.query.item && req.query.order) {
+            try {
+                const { item, order } = req.query;
+                const getItem = await Order.findOne({ itemAddress: item, orderIndex: order });
+
+                res.status(200).json(getItem);
+            } catch(err) {
+                res.status(500).json({ err });
+            }
+        }
+
+        res.status(200).json({ msg: 'hello' });
     });
 
     router.post('/', async (req,res) => {
