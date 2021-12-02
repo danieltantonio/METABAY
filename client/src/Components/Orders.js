@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 function Orders(props) {
     const { web3, store, user } = props;
@@ -59,9 +60,57 @@ function Orders(props) {
                 <div key={ordr.orderIndex}>
                     <p>Item: {itm}</p>
                     <p>Customer: {ordr.buyer}</p>
+                    <div id={`${itm}-${ordr.orderIndex}`}></div>
+                    <button onClick={() => returnOrderDetails(itm, ordr.orderIndex)}>Customer Info</button>
                 </div>
             )
         }));
+    }
+
+    const returnOrderDetails = async (item, order) => {
+        try {
+            const orderDataContainer = document.getElementById(`${item}-${order}`);
+
+            if(!orderDataContainer.innerHTML) {
+                const getOrderData = await axios.get(`http://localhost:5000/order?item=${item}&order=${order}`);
+                const orderData = getOrderData.data;
+
+                // Make HTML Elements
+                const fName = document.createElement('p');
+                const lName = document.createElement('p');
+                const addr = document.createElement('p');
+                const city = document.createElement('p');
+                const state = document.createElement('p');
+                const zip = document.createElement('p');
+                const country = document.createElement('p');
+                const quantity = document.createElement('p');
+
+                // Populate HTML Elements with Order Data
+                fName.innerHTML = `First Name: ${orderData.firstName}`;
+                lName.innerHTML = `Last Name: ${orderData.lastName}`;
+                addr.innerHTML = `Address: ${orderData.address}`;
+                city.innerHTML = `City: ${orderData.city}`;
+                state.innerHTML = `State: ${orderData.state}`;
+                zip.innerHTML = `Zip Code: ${orderData.zip}`;
+                country.innerHTML = `Country: ${orderData.country}`;
+                quantity.innerHTML = `Quantity: ${orderData.quantity}`;
+
+                // Append HTML Elements to Container
+                orderDataContainer.appendChild(fName);
+                orderDataContainer.appendChild(lName);
+                orderDataContainer.appendChild(addr);
+                orderDataContainer.appendChild(city);
+                orderDataContainer.appendChild(state);
+                orderDataContainer.appendChild(zip);
+                orderDataContainer.appendChild(country);
+                orderDataContainer.appendChild(quantity);
+            } else {
+                orderDataContainer.innerHTML = '';
+            }
+        } catch(err) {
+            alert('There was an error! Check the console.');
+            console.log(err);
+        }
     }
 
     return(
