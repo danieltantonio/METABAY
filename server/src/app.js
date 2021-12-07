@@ -4,6 +4,7 @@
     const passport = require('passport');
     const MongoStore = require('connect-mongo')(session);
     const cors = require('cors');
+    const fs = require('fs');
 
     const app = express();
     const connection = require('./config/db/mongoose');
@@ -26,6 +27,7 @@
     app.use(passport.initialize());
     app.use(passport.session());
     app.use(cors());
+    app.use('/static', express.static(__dirname + '/static'));
 
     app.use('/order', orderRouter);
     

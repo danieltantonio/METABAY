@@ -1,5 +1,6 @@
 (() => {
     const express = require('express');
+    const upload = require('../middleware/uploadMW');
     const router = express.Router();
 
     const Order = require('../config/db/models/order');
@@ -28,6 +29,10 @@
         } catch(err) {
             res.status(500).json(err.message);
         }
+    });
+
+    router.post('/test', upload.single('file'), async (req,res) => {
+        res.status(200).json({ msg: 'Testing' });
     });
 
     module.exports = router;
