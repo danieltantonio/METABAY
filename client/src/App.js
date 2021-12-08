@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Route, Routes, NavLink, Link } from 'react-router-dom';
+import axios from 'axios';
+import formData from 'form-data';
 
 import { fetchWeb3, fetchStore, fetchAllItems, addNewItem } from './store/actions';
 
@@ -39,13 +41,18 @@ function App(props) {
     setUser(accs[0]);
   });
 
-  const createItem = item => {
+  const createItem = async item => {
     if(store && user && web3) {
-      const { name, price, quantity } = item;
-      const priceToWei = web3.utils.toWei(price, 'ether');
-      const newItem = { name, price: priceToWei, quantity };
-
-      addNewItem(store, user, newItem);
+      try {
+        const { name, price, quantity, itemPic } = item;
+        const priceToWei = web3.utils.toWei(price, 'ether');
+        const newItem = { name, price: priceToWei, quantity };
+  
+        addNewItem(store, user, newItem, itemPic);
+      } catch(err) {
+        console.log(err);
+        alert('Error creating a new Item. Read the console.');
+      }
     }
   }
 

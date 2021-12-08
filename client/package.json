@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.24.0",
+    "form-data": "^4.0.0",
     "history": "^5.1.0",
     "react": "16.11.0",
     "react-dom": "16.11.0",

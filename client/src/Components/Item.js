@@ -30,6 +30,21 @@ function Item(props) {
     const [Item, setItem] = useState(null);
     const [itemInfo, setItemInfo] = useState(initItemInfo);
     const [form, setForm] = useState(initForm);
+    const [pic, setPic] = useState('');
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const getPicData = await axios.get(`http://localhost:5000/item?address=${id}`);
+                const picData = getPicData.data;
+
+                setPic(picData.pic.picName);
+            } catch(err) {
+                console.log(err);
+                alert('There was an error retrieving picture. Check connsole.');
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         (async () => {
@@ -109,6 +124,7 @@ function Item(props) {
             <p>Price: ETH {web3.utils.fromWei(itemInfo.price, 'ether')}</p>
             <p>Quantity: {itemInfo.quantity}</p>
             <form>
+                { pic ? <img src={`http://localhost:5000/static/images/items/${id}/${pic}`} /> : <p>Picture loading</p> }
                 <input type="text" onChange={changeForm} value={form.firstName} name="firstName" placeholder="First Name" />
                 <input type="text" onChange={changeForm} value={form.lastName} name="lastName" placeholder="Last Name" />
                 <input type="text" onChange={changeForm} value={form.address} name="address" placeholder="Address" />
