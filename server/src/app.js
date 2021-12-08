@@ -10,6 +10,7 @@
     const connection = require('./config/db/mongoose');
 
     const orderRouter = require('./api/orderRouter');
+    const itemRouter = require('./api/itemRouter');
 
     const sessionStore = new MongoStore({ mongooseConnection: connection, collection: 'sessions' });
     
@@ -30,6 +31,7 @@
     app.use('/static', express.static(__dirname + '/static'));
 
     app.use('/order', orderRouter);
+    app.use('/item', itemRouter);
     
     module.exports = app;
 })();
