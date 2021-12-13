@@ -1,22 +1,87 @@
-.App {
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=M+PLUS+Rounded+1c&display=swap');
+@import '~antd/dist/antd.css';
+
+h1 {
+  font-family: 'Bebas Neue', cursive;
+  color: white !important;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
+body {
+  color: white !important;
+  font-family: 'M Plus Rounded 1c', sans-serif !important;
+  background: rgb(15, 14, 22) !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+#navbar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background: rgb(15, 14, 22) !important;
+}
+
+.navlink {
+  color: white !important;
+  font-weight:bold;
+  font-size: 15px;
+}
+
+.navlink.active {
+  color: rgb(255, 136, 6) !important;
+}
+
+#user {
+  color: rgb(255, 136, 6) !important;
+}
+
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item:hover::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu:hover::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-active::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-active::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-open::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-open::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-selected::after, 
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-selected::after {
+  border-bottom: 2px solid rgb(255, 136, 6) !important;
+}
+
+.Items {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+#item {
+  display: flex;
+  flex-direction: row;
+}
+
+#item-details {
+  text-align: center;
+}
+
+#item-details h2 {
   color: white;
 }
 
-.App-link {
-  color: #09d3ac;
+#item-details img {
+  width: 95%
+}
+
+#order-form {
+  margin-top: 6%;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#order-form form {
+  width: 90%;
+}
+
+#create-item label {
+  color: white;
+}
+
+#create-item #button {
+  width: 100%;
 }

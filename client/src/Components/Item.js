@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { Form, Input, Button } from 'antd';
 
 import ItemContract from '../contracts/Item.json';
 
@@ -119,24 +120,52 @@ function Item(props) {
         ?
         <div>Loading</div>
         :
-        <div>
-            <h2>{itemInfo.name}</h2>
-            <p>Price: ETH {web3.utils.fromWei(itemInfo.price, 'ether')}</p>
-            <p>Quantity: {itemInfo.quantity}</p>
-            <form>
+        <div id="item">
+            <div id="item-details">
+                <h2>{itemInfo.name}</h2>
                 { pic ? <img src={`http://localhost:5000/static/images/items/${id}/${pic}`} /> : <p>Picture loading</p> }
-                <input type="text" onChange={changeForm} value={form.firstName} name="firstName" placeholder="First Name" />
-                <input type="text" onChange={changeForm} value={form.lastName} name="lastName" placeholder="Last Name" />
-                <input type="text" onChange={changeForm} value={form.address} name="address" placeholder="Address" />
-                <input type="text" onChange={changeForm} value={form.apartment} name="apartment" placeholder="Apartment, suite, etc. (optional)" />
-                <input type="text" onChange={changeForm} value={form.city} name="city" placeholder="City" />
-                <input type="text" onChange={changeForm} value={form.country} name="country" placeholder="Country" />
-                <input type="text" onChange={changeForm} value={form.state} name="state" placeholder="State" />
-                <input type="text" onChange={changeForm} value={form.zip} name="zip" placeholder="Zip Code" />
-                <input type="text" onChange={changeForm} value={form.phone} name="phone" placeholder="Phone" />
-                <input type="number" onChange={changeForm} value={form.quantity} name="quantity" placeholder="Quantity" />
-                <button onClick={orderNow}>Order Now</button> 
-            </form>
+                <p>Price: ETH {web3.utils.fromWei(itemInfo.price, 'ether')}</p>
+                <p>Quantity: {itemInfo.quantity}</p>
+            </div>
+            <div id="order-form">
+                <Form
+                    layout="horizontal"
+                    initialValues={{ size: "default" }}
+                    wrapperCol={{ size: 100 }}
+                >
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.firstName} name="firstName" placeholder="First Name" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.lastName} name="lastName" placeholder="Last Name" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.address} name="address" placeholder="Address" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.apartment} name="apartment" placeholder="Apartment, suite, etc. (optional)" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.city} name="city" placeholder="City" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.country} name="country" placeholder="Country" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.state} name="state" placeholder="State" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.zip} name="zip" placeholder="Zip Code" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="text" onChange={changeForm} value={form.phone} name="phone" placeholder="Phone" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input type="number" onChange={changeForm} value={form.quantity} name="quantity" placeholder="Quantity" />
+                    </Form.Item>
+                    <Button onClick={orderNow}>Order</Button>
+                </Form>
+            </div>
         </div>
     )
 }

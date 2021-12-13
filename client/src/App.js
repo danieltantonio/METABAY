@@ -1,8 +1,8 @@
+import './App.css';
+
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Route, Routes, NavLink, Link } from 'react-router-dom';
-import axios from 'axios';
-import formData from 'form-data';
 
 import { fetchWeb3, fetchStore, fetchAllItems, addNewItem } from './store/actions';
 
@@ -11,6 +11,7 @@ import CreateItem from './Components/CreateItem';
 import Item from './Components/Item';
 import Profile from './Components/Profile';
 import Orders from './Components/Orders';
+import { Menu, Layout } from 'antd';
 
 function App(props) {
   const { fetchWeb3, fetchStore, fetchAllItems, addNewItem, web3, store, items } = props;
@@ -57,13 +58,14 @@ function App(props) {
   }
 
   return (
-    <div>
-      <div>
-        User: <Link to={`/${user}`}>{user}</Link>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/new-item">Create Item For Sale</NavLink>
-        <NavLink to="/orders">Orders</NavLink>
-      </div>
+    <>
+      <div className='logo'><h1>METABAY</h1></div>
+      <Menu id='navbar' mode="horizontal">
+        <Menu.Item key="home"><NavLink className="navlink" to="/">Home</NavLink></Menu.Item>
+        <Menu.Item><NavLink className="navlink" to="/new-item">Create Item For Sale</NavLink></Menu.Item>
+        <Menu.Item><NavLink className="navlink" to="/orders">Orders</NavLink></Menu.Item>
+        <Menu.Item><span id="user">User: </span><Link className="navlink" to={`/${user}`}>{user}</Link></Menu.Item>
+      </Menu>
       <Routes>
         <Route exact path="/" element={ <Home items={items} /> } />
         <Route exact path="/:address" element={ <Profile user={user} /> } />
@@ -71,7 +73,7 @@ function App(props) {
         <Route path="/item/:id" element={ <Item user={user} /> } />
         <Route path="/Orders" element={ <Orders user={user} /> } />
       </Routes>
-    </div>
+    </>
   )
 }
 

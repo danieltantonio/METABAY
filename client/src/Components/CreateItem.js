@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import {
+    Form,
+    Input,
+    Upload,
+    Button
+} from 'antd';
 
 const initForm = {
     name: '',
@@ -12,15 +18,18 @@ function CreateItem(props) {
     const [form, setForm] = useState(initForm);
 
     const changeForm = e => {
-        const { name, value, type, files } = e.target;
+        const { name, value, type } = e.target;
         
         if(type === 'number') {
             setForm({ ...form, [name]: parseInt(value) });
-        } else if (type === 'file') {
-            setForm({ ...form, [name]: files[0] });
         } else {
             setForm({ ...form, [name]: value });
         }
+    }
+
+    const handleUpload = e => {
+        const { file } = e;
+        setForm({ ...form, itemPic: file['originFileObj'] });
     }
 
     const handleSubmit = e => {
@@ -29,15 +38,33 @@ function CreateItem(props) {
     }
     
     return(
-        <div>
+        <div id="create-item">
             Create Item
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="name" placeholder="name" onChange={changeForm}/>
-                <input type="text" name="price" placeholder="price" onChange={changeForm}/>
-                <input type="number" name="quantity" placeholder="quantity" onChange={changeForm}/>
-                <input type="file" name="itemPic" placeholder="thumbnail" onChange={changeForm} />
-                <input type="submit" />
-            </form>
+            <Form
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 14 }}
+                layout="horizontal"
+                initialValues={{ size: 'default' }}
+                size="default"
+            >
+                <Form.Item label="Item Name">
+                    <Input type="text" name="name" onChange={changeForm} />
+                </Form.Item>
+                <Form.Item label="Price">
+                    <Input type="text" name="price" onChange={changeForm}/>
+                </Form.Item>
+                <Form.Item label="Quantity">
+                    <Input type="number" name="quantity" onChange={changeForm}/>
+                </Form.Item>
+                <Form.Item label="Picture">
+                    <Upload  name="itemPic" onChange={handleUpload}>
+                        <Button>Upload</Button>
+                    </Upload>
+                </Form.Item>
+                <Form.Item>
+                    <Button onClick={handleSubmit}>Create Item</Button>
+                </Form.Item>
+            </Form>
         </div>
     )
 }
