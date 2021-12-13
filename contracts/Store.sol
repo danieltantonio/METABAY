@@ -134,4 +134,12 @@ contract Store is Ownable {
     function returnPaymentIndex(uint _itemIndex, uint _purchaseIndex) public view returns(uint) {
         return items[_itemIndex]._payments[_purchaseIndex]._index;
     }
+
+    function returnItemName(uint _itemIndex) public view returns(string memory) {
+        return items[_itemIndex]._identifier;
+    }
+
+    function returnItemPrice(uint _itemIndex) public view returns(uint) {
+        return items[_itemIndex]._price;
+    }
 }
