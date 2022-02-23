@@ -1,8 +1,5 @@
 # METABAY
 
-![](https://i.imgur.com/qK3OCy2.png)
-(Picture is temporary lol)
-
 ## How To Set Up:
 1.) Install the Truffle Development Environment:
 
